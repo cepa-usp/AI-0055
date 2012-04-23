@@ -1,0 +1,3 @@
+h1. Velocidade média
+
+Nesta Atividade Interativa (AI) o usuário deve deve acelerar o carro, verificando assim o gráfico da velocidade x tempo.
