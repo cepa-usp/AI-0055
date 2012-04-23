@@ -4,6 +4,8 @@ package
 	import cepa.graph.DataStyle;
 	import cepa.graph.GraphFunction;
 	import cepa.graph.rectangular.SimpleGraph;
+	import fl.transitions.easing.None;
+	import fl.transitions.Tween;
 	import flash.display.DisplayObject;
 	import flash.display.Sprite;
 	import flash.events.Event;
@@ -33,8 +35,9 @@ package
 		private var startOrientation:Number;
 		private var posPonteiro:Point;
 		private var angulos:Array;
-		private var velocidade:Number;
+		public var velocidade:Number;
 		private var velocidades:Array;
+		private var acel:Number = 20;
 		
 		//Variáveis do gráfico
 		private var graph:SimpleGraph;
@@ -340,7 +343,8 @@ package
 		private function engataTiraRe(e:MouseEvent):void 
 		{
 			painel.velocimetro.ponteiro.rotation = angulos[0];
-			velocidade = 0;
+			//velocidade = 0;
+			changeSpeed(0);
 			painel.velocimetro.quilometragem.text = String(Math.round(distancia) * -1) + " m";
 			
 			if (reverse)
@@ -381,16 +385,38 @@ package
 					
 					if (reverse) 
 					{
-						velocidade = velocidades[i] * -1;
+						//velocidade = velocidades[i] * -1;
+						changeSpeed(velocidades[i] * -1);
 					}
 					else
 					{
-						velocidade = velocidades[i];
+						//velocidade = velocidades[i];
+						changeSpeed(velocidades[i]);
 					}
 					//changeSpeed();
 					break;
 				}
 			}
+		}
+		
+		private var changeTween:Tween;
+		private function changeSpeed(to:Number):void
+		{
+			var changeSpeedTime:Number = Math.abs((to - velocidade) / acel);
+			if (changeTween != null) {
+				changeTween.stop();
+			}
+				/*
+				if (changeTween.isPlaying) {
+					changeTween.continueTo(to, changeSpeedTime);
+				}else {
+					changeTween = new Tween(this, "velocidade", None.easeNone, velocidade, to, changeSpeedTime, true);
+				}
+			}else{
+				changeTween = new Tween(this, "velocidade", None.easeNone, velocidade, to, changeSpeedTime, true);
+			}*/
+			
+			changeTween = new Tween(this, "velocidade", None.easeNone, velocidade, to, changeSpeedTime, true);
 		}
 		
 		private function wrapRotation (rotation:Number) : Number
