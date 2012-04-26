@@ -10,6 +10,7 @@ package
 	import fl.transitions.Tween;
 	import fl.transitions.TweenEvent;
 	import flash.display.DisplayObject;
+	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
@@ -21,7 +22,7 @@ package
 	 * ...
 	 * @author Alexandre
 	 */
-	public class Main extends BaseMain
+	public class Main2 extends BaseMain
 	{
 		//Velocidades
 		private var VELOCIDADE_MONTANHONA:Number;
@@ -45,8 +46,10 @@ package
 		//Variáveis do gráfico
 		private var graph:SimpleGraph;
 		private var pontosGrafico:Array;
-		private var timerGrafico:Timer;
-		private var tempoDuracao:Number;
+		//private var timerGrafico:Timer;
+		//private var tempoDuracao:Number;
+		private var tempoDuracao:Cronometer = new Cronometer();
+		private var tempoDistancia:Cronometer = new Cronometer();
 		
 		private var animacaoIniciada:Boolean;
 		private var reverse:Boolean;
@@ -59,7 +62,7 @@ package
 		
 		private var mouseMotion:MouseMotionData = MouseMotionData.instance;
 		
-		public function Main() 
+		public function Main2() 
 		{
 			if (stage) init();
 			else addEventListener(Event.ADDED_TO_STAGE, init);
@@ -106,6 +109,8 @@ package
 			VELOCIDADE_CARRO = 0; //Velocidade da estrada.
 			
 			velocidade = 0;
+			v0 = 0;
+			velTo = 0;
 			vMedia = 0;
 			distancia = 0;
 			distanciaPlaca = 0;
@@ -116,8 +121,15 @@ package
 			
 			reverse = false;
 			
-			reButton.gotoAndStop("FRENTE");
+			tempoDuracao.stop();
+			tempoDuracao.reset();
 			
+			tempoDistancia.stop();
+			tempoDistancia.reset();
+			
+			reButton.gotoAndStop("FRENTE");
+			painel.velocimetro.ponteiro.buttonMode = true;
+			if (ghost != null) ghost.visible = false;
 		}
 		
 		private function initCarousel():void
@@ -193,14 +205,15 @@ package
 				placas = new Vector.<DisplayObject>();
 				placas.push(new Placa());
 				placas.push(new Placa());
-				//placas.push(new Placa());
-				//placas.push(new Placa());
+				placas.push(new Placa());
+				placas.push(new Placa());
 				//placas.push(new Placa());
 				//stripes.push(new Placa());
 				//stripes.push(new Placa());
 				//stripes.push(new Placa());
 				
-				carousel[4] = new Carousel(placas, viewport, ((100 * 150) / 11.1), true);
+				carousel[4] = new Carousel(placas, viewport, 1000, true);
+				//carousel[4] = new Carousel(placas, viewport, ((100 * 150) / 11.1), true);
 				carousel[4].y = posY;
 				
 				//var placaTeste:Placa = Placa(placas[1]);
@@ -231,26 +244,9 @@ package
 				//placaTeste = Placa(placas[1]);
 				//placaTeste.distancia.text = "0 m";
 			}
-			atualizaPlacas(null);
-		}
-		
-		private function atualizaPlacas(e:Event):void 
-		{
-			//trace(distancia);
-			if (reverse) 
-			{
-				//distanciaPlaca -= 100;
-				distanciaPlaca = (Math.floor( -distancia / 100)) * 100;
-				var placaTeste:Placa = Placa(placas[placas.length - 1]);
-				placaTeste.distancia.text = String(distanciaPlaca) + " m";
-			}
-			else
-			{
-				distanciaPlaca  = (Math.ceil( -distancia / 100)) * 100;
-				placaTeste = Placa(placas[1]);
-				placaTeste.distancia.text = String(distanciaPlaca) + " m";
-			}
 			
+			carousel[4].displace(-75); //Deslocamento para chegar a placa beeem na frente do carro.
+			atualizaPlacas(null);
 		}
 		
 		private function adicionaCarro():void
@@ -268,10 +264,9 @@ package
 		{
 			posPonteiro = painel.velocimetro.localToGlobal(new Point(painel.velocimetro.ponteiro.x, painel.velocimetro.ponteiro.y));
 			
-			angulos = [ -135, -95, -50, 0, 50, 95];
-			velocidades = [0, 40, 60, 80, 100, 120];
+			angulos = [ -141, -102, -63, -23, 16, 55, 94];
+			velocidades = [0, 20, 40, 60, 80, 100, 120];
 			
-			//velocidade = 0;
 			painel.velocimetro.ponteiro.rotation = angulos[0];
 			
 			painel.velocimetro.quilometragem.text = "0 m";
@@ -325,9 +320,9 @@ package
 			graph.addFunction(funcao, styleMedia);
 			graph.draw();
 			
-			timerGrafico = new Timer(graphTime * 1000);
-			timerGrafico.addEventListener(TimerEvent.TIMER, atualizaGrafico);
-			tempoDuracao = 0;
+			//timerGrafico = new Timer(graphTime * 1000);
+			//timerGrafico.addEventListener(TimerEvent.TIMER, atualizaGrafico);
+			//tempoDuracao = 0;
 			
 			//atualizaGrafico();
 			
@@ -447,36 +442,14 @@ package
 			return A * (v < 0 ? 1: -1);
 		}
 		
-		private function atualizaGrafico(e:TimerEvent = null):void
-		{
-			if (animacaoIniciada)
-			{
-				//tempoDuracao++;
-				tempoDuracao += graphTime;
-				
-				pontosGrafico.push([tempoDuracao, velocidade]);
-				
-				//if (tempoDuracao >= graph.xmax - 1 && !panningGraph) {
-					//graph.xmax = tempoDuracao + 1;
-					//graph.xmax = graph.xmax + graphTime * 2;
-					//graph.xmin = graph.xmin + graphTime * 2;
-				//}
-				
-				vMedia = calculaMedia();
-				
-				painel.velocimetro.quilometragem.text = String(Math.round(distancia) * -1) + " m";
-				
-				graph.draw();
-				
-				if (tempoDuracao >= 120) stopAnimation();
-			}
-		}
-		
 		private function initAnimation():void 
 		{
 			stage.addEventListener(Event.ENTER_FRAME, updateCenario);
 			
-			timerGrafico.start();
+			//timerGrafico.start();
+			tempoDuracao.start();
+			tempoDistancia.start();
+			
 			
 			animacaoIniciada = true;
 		}
@@ -505,8 +478,18 @@ package
 			}
 		}
 		
+		private var ghost:MovieClip;
 		private function initRotation(e:MouseEvent):void 
 		{
+			if (ghost == null) {
+				ghost = new Ponteiro();
+				painel.velocimetro.addChild(ghost);
+				ghost.alpha = 0.5;
+				ghost.scaleY = 0.43;
+				painel.velocimetro.setChildIndex(ghost, painel.velocimetro.getChildIndex(painel.velocimetro.ponteiro) - 1);
+			}
+			ghost.rotation = painel.velocimetro.ponteiro.rotation;
+			ghost.visible = true;
 			//if (animacaoPausada == false)
 			//{
 				stage.addEventListener(MouseEvent.MOUSE_MOVE, changingSpeed);
@@ -517,20 +500,23 @@ package
 			//}
 		}
 		
+		private var velInVelocimeter:Number = 0;
 		private function changingSpeed(e:MouseEvent):void 
 		{
 			var rotacao:Number = wrapRotation(Math.round(Math.atan2(stage.mouseY - posPonteiro.y , stage.mouseX - posPonteiro.x) * 180 / Math.PI - startAngle + startOrientation));
 			
 			for (var i:int = 0; i < angulos.length; i++) 
 			{
-				if (Math.abs(rotacao - angulos[i]) < 20 && velocidade != velocidades[i])
+				if (Math.abs(rotacao - angulos[i]) < 20 && velInVelocimeter != velocidades[i])
 				{
+					velInVelocimeter = velocidades[i];
 					if (animacaoIniciada == false) {
 						//animacaoIniciada = true;
 						initAnimation();
 					}
 					
-					painel.velocimetro.ponteiro.rotation = angulos[i];
+					//painel.velocimetro.ponteiro.rotation = angulos[i];
+					ghost.rotation = angulos[i];
 					
 					if (reverse) 
 					{
@@ -548,63 +534,61 @@ package
 			}
 		}
 		
-		private var changeTween:Tween;
+		//private var changeTween:Tween;
 		private var carro:Sprite;
 		
 		private var v0:Number;
 		private var velTo:Number;
 		private var calculatingVel:Boolean = false;
 		private var cronVel:Cronometer = new Cronometer();
-		private var acel:Number = 5;
+		private var acel:Number = 5;// m/s*s
 		
 		private function changeSpeed(to:Number):void
 		{
-			//trace(velocidade);
+			cronVel.reset();
+			cronVel.start();
+			
 			v0 = velocidade;
 			velTo = to;
-			if (cronVel.isRunning) cronVel.reset();
-			else cronVel.start();
+			
+			if (velocidade >= 0) {
+				if (to > velocidade) acel = Math.abs(acel);
+				else acel = -Math.abs(acel);
+			}else {
+				if (to < velocidade) acel = -Math.abs(acel);
+				else acel = Math.abs(acel);
+			}
 			
 			if (!calculatingVel) {
 				calculatingVel = true;
 				stage.addEventListener(Event.ENTER_FRAME, calculaVel);
 			}
 			
-			
-			return;
-			
-			var changeSpeedTime:Number = Math.abs((to - velocidade) / acel);
-			if (changeTween != null) {
-				if(changeTween.isPlaying) changeTween.continueTo(to, changeSpeedTime);
-				else {
-					changeTween = new Tween(this, "velocidade", None.easeNone, velocidade, to, changeSpeedTime, true);
-				}
-			}else{
-				/*
-				if (changeTween.isPlaying) {
-					changeTween.continueTo(to, changeSpeedTime);
-				}else {
-					changeTween = new Tween(this, "velocidade", None.easeNone, velocidade, to, changeSpeedTime, true);
-				}
-			}else{
-				changeTween = new Tween(this, "velocidade", None.easeNone, velocidade, to, changeSpeedTime, true);
-			}*/
-			
-			changeTween = new Tween(this, "velocidade", None.easeNone, velocidade, to, changeSpeedTime, true);
-			}
 		}
 		
 		private function calculaVel(e:Event):void
 		{
-			trace(cronVel.read());
-			//trace(v0, acel, cronVel.read() / 1000);
-			velocidade = v0 + acel / (cronVel.read() / 1000);
-			//trace("vel: " + velocidade);
+			var time:Number = cronVel.read() / 1000;
+			velocidade = v0 + ( acel * time * 3.6); // * 3.6: m/s -> km/h
 			
-			if (velocidade >= velTo) {
-				stage.removeEventListener(Event.ENTER_FRAME, calculaVel);
-				calculatingVel = false;
+			if(acel > 0){
+				if (velocidade >= velTo) {
+					stage.removeEventListener(Event.ENTER_FRAME, calculaVel);
+					calculatingVel = false;
+					velocidade = velTo;
+					ghost.visible = false;
+				}
+			}else {
+				if (velocidade <= velTo) {
+					stage.removeEventListener(Event.ENTER_FRAME, calculaVel);
+					calculatingVel = false;
+					velocidade = velTo;
+					ghost.visible = false;
+				}
 			}
+			
+			var angle:Number = -141 + Math.abs(velocidade) * ((94 + 141)/120);
+			painel.velocimetro.ponteiro.rotation = angle;
 		}
 		
 		private function wrapRotation (rotation:Number) : Number
@@ -617,18 +601,20 @@ package
 			stage.removeEventListener(MouseEvent.MOUSE_MOVE, changingSpeed);
 			stage.removeEventListener(MouseEvent.MOUSE_UP, stopChanging);
 			
-			//velocidade = velocidades[angulos.indexOf(Math.round(painel.velocimetro.ponteiro.rotation))];
-			//changeSpeed();
+			//ghost.visible = false;
 		}
 		
 		private function stopAnimation():void
 		{
 			stage.removeEventListener(Event.ENTER_FRAME, updateCenario);
 			
-			timerGrafico.stop();
+			tempoDuracao.stop();
+			tempoDuracao.reset();
+			
+			tempoDistancia.stop();
+			tempoDistancia.reset();
 			
 			painel.velocimetro.ponteiro.rotation = angulos[0];
-			
 			painel.velocimetro.ponteiro.removeEventListener(MouseEvent.MOUSE_DOWN, initRotation);
 		}
 		
@@ -647,37 +633,66 @@ package
 		override public function reset(e:MouseEvent = null):void
 		{
 			painel.velocimetro.ponteiro.removeEventListener(MouseEvent.MOUSE_DOWN, initRotation);
-			
 			stage.removeEventListener(Event.ENTER_FRAME, updateCenario);
-			
-			timerGrafico.reset();
-			if (changeTween != null) {
-				if (changeTween.isPlaying) changeTween.stop();
-			}
 			init();
 		}
 		
+		private var pixToMeter:Number = 1000 / 100; //1000 pixels = 100m
 		private function updateCenario(e:Event) : void
 		{
 			VELOCIDADE_CARRO = -velocidade;
 			
 			//distancia += VELOCIDADE_CARRO / (8 * );
-			distancia += (11.1 / 150) * VELOCIDADE_CARRO / 8;
+			var dist:Number = (tempoDistancia.read() / 1000) * VELOCIDADE_CARRO / 3.6; //deslocamento em m
+			distancia += dist;
+			tempoDistancia.reset();
+			//distancia += (11.1 / 150) * VELOCIDADE_CARRO / 8;
 			
-			VELOCIDADE_MONTANHONA = VELOCIDADE_CARRO / 5;
-			VELOCIDADE_NUVENS = VELOCIDADE_CARRO / 4;
-			VELOCIDADE_ARVORES = VELOCIDADE_CARRO / 2;
-			VELOCIDADE_CLOSE_CENARIO = VELOCIDADE_CARRO / 1.5;
+			VELOCIDADE_MONTANHONA = dist * pixToMeter / 5;
+			VELOCIDADE_NUVENS = dist * pixToMeter / 4;
+			VELOCIDADE_ARVORES = dist * pixToMeter / 2;
+			VELOCIDADE_CLOSE_CENARIO = dist * pixToMeter / 1.5;
 			
-			carousel[0].displace(VELOCIDADE_CLOSE_CENARIO / 5);
-			carousel[1].displace(VELOCIDADE_MONTANHONA / 5);
-			carousel[2].displace(VELOCIDADE_ARVORES / 5);
-			carousel[3].displace(VELOCIDADE_CARRO / 8);
-			carousel[4].displace(VELOCIDADE_CARRO / 8);
+			carousel[0].displace(VELOCIDADE_CLOSE_CENARIO);
+			carousel[1].displace(VELOCIDADE_MONTANHONA);
+			carousel[2].displace(VELOCIDADE_ARVORES);
+			carousel[3].displace(dist * pixToMeter);
+			carousel[4].displace(dist * pixToMeter);
+			
+			//carousel[4].displace(VELOCIDADE_CARRO / 8);
 			//carousel[4].displace(VELOCIDADE_NUVENS / 5);
 			//carousel[5].displace(VELOCIDADE_CARRO / 8);
-
 			
+			atualizaGrafico();
+		}
+		
+		private function atualizaGrafico():void
+		{
+			pontosGrafico.push([tempoDuracao.read() / 1000, velocidade]);
+			
+			vMedia = calculaMedia();
+			painel.velocimetro.quilometragem.text = String(Math.round(distancia) * -1) + " m";
+			graph.draw();
+			
+			if (tempoDuracao.read() / 1000 >= 120) stopAnimation();
+		}
+		
+		private function atualizaPlacas(e:Event):void 
+		{
+			if (!animacaoIniciada) {
+				distanciaPlaca = 0;
+			}else{
+				if(velocidade < 0)
+				{
+					distanciaPlaca -= 100;
+				}
+				else
+				{
+					distanciaPlaca += 100;
+				}
+			}
+			var placaTeste:Placa = Placa(placas[1]);
+			placaTeste.distancia.text = String(distanciaPlaca) + " m";
 		}
 		
 		override public function iniciaTutorial(e:MouseEvent = null):void
