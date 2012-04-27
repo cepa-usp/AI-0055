@@ -17,6 +17,8 @@ package
 	import flash.events.TimerEvent;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
+	import flash.text.TextField;
+	import flash.text.TextFormat;
 	import flash.utils.Timer;
 	/**
 	 * ...
@@ -58,6 +60,8 @@ package
 		private var placas:Vector.<DisplayObject>;
 		private var distanciaPlaca:Number;
 		
+		private var labelFunc:TextField;
+		
 		private var novaVelocidade:Number;
 		
 		private var mouseMotion:MouseMotionData = MouseMotionData.instance;
@@ -80,6 +84,8 @@ package
 			initGrafico();
 			addListeners();
 			
+			labelFunc.y = graph.y2pixel(0) + graph.y - labelFunc.height - 2;
+			
 			//initAnimation();
 			
 			setIndex();
@@ -95,6 +101,7 @@ package
 			setChildIndex(painel, numChildren - 1);
 			setChildIndex(reButton, numChildren - 1);
 			setChildIndex(vLabel, numChildren - 1);
+			setChildIndex(labelFunc, numChildren - 1);
 			setChildIndex(tLabel, numChildren - 1);
 			setChildIndex(botoes, numChildren - 1);
 		}
@@ -136,6 +143,20 @@ package
 			if (ghost != null) {
 				ghost.visible = false;
 			}
+			
+			if (labelFunc == null) {
+				labelFunc = new TextField();
+				labelFunc.defaultTextFormat = new TextFormat("arial", 12, 0x000000);
+				addChild(labelFunc);
+				labelFunc.x = 630;
+				labelFunc.text = "v. média";
+				labelFunc.height = labelFunc.textHeight + 2;
+				labelFunc.width = labelFunc.textWidth + 4;
+				labelFunc.background = true;
+				labelFunc.backgroundColor = 0xFFFFFF;
+			}
+			
+			if(graph != null) labelFunc.y = graph.y2pixel(0) + graph.y - labelFunc.height - 2;
 		}
 		
 		private function initCarousel():void
@@ -721,6 +742,7 @@ package
 			pontosGrafico.push([tempoDuracao.read() / 1000, velocidade]);
 			
 			vMedia = calculaMedia();
+			labelFunc.y = graph.y2pixel(vMedia) + graph.y - labelFunc.height - 2;
 			painel.velocimetro.quilometragem.text = String(Math.round(distancia) * -1) + " m";
 			graph.draw();
 			
