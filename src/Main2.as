@@ -271,7 +271,7 @@ package
 			
 			painel.velocimetro.quilometragem.text = "0 m";
 			
-			painel.velocimetro.ponteiro.addEventListener(MouseEvent.MOUSE_DOWN, initRotation);
+			painel.velocimetro./*ponteiro.*/addEventListener(MouseEvent.MOUSE_DOWN, initRotation);
 		}
 		
 		private var delta:Number = 20;
@@ -461,10 +461,22 @@ package
 		
 		private function engataTiraRe(e:MouseEvent):void 
 		{
-			painel.velocimetro.ponteiro.rotation = angulos[0];
-			//velocidade = 0;
-			changeSpeed(0);
-			painel.velocimetro.quilometragem.text = String(Math.round(distancia) * -1) + " m";
+			if(velocidade != 0){
+				painel.velocimetro.ponteiro.rotation = angulos[0];
+				//velocidade = 0;
+				velInVelocimeter = 0;
+				if (ghost == null) {
+					ghost = new Ponteiro();
+					painel.velocimetro.addChild(ghost);
+					ghost.alpha = 0.5;
+					ghost.scaleY = 0.43;
+					painel.velocimetro.setChildIndex(ghost, painel.velocimetro.getChildIndex(painel.velocimetro.ponteiro) - 1);
+				}
+				ghost.rotation = angulos[0];
+				ghost.visible = true;
+				changeSpeed(0);
+				painel.velocimetro.quilometragem.text = String(Math.round(distancia) * -1) + " m";
+			}
 			
 			if (reverse)
 			{
@@ -481,23 +493,53 @@ package
 		private var ghost:MovieClip;
 		private function initRotation(e:MouseEvent):void 
 		{
-			if (ghost == null) {
-				ghost = new Ponteiro();
-				painel.velocimetro.addChild(ghost);
-				ghost.alpha = 0.5;
-				ghost.scaleY = 0.43;
-				painel.velocimetro.setChildIndex(ghost, painel.velocimetro.getChildIndex(painel.velocimetro.ponteiro) - 1);
-			}
-			ghost.rotation = painel.velocimetro.ponteiro.rotation;
-			ghost.visible = true;
-			//if (animacaoPausada == false)
-			//{
-				stage.addEventListener(MouseEvent.MOUSE_MOVE, changingSpeed);
-				stage.addEventListener(MouseEvent.MOUSE_UP, stopChanging);
+			trace(e.target);
+			if(e.target == painel.velocimetro.ponteiro){
+				if (ghost == null) {
+					ghost = new Ponteiro();
+					painel.velocimetro.addChild(ghost);
+					ghost.alpha = 0.5;
+					ghost.scaleY = 0.43;
+					painel.velocimetro.setChildIndex(ghost, painel.velocimetro.getChildIndex(painel.velocimetro.ponteiro) - 1);
+				}
+				ghost.rotation = painel.velocimetro.ponteiro.rotation;
+				ghost.visible = true;
+				//if (animacaoPausada == false)
+				//{
+					stage.addEventListener(MouseEvent.MOUSE_MOVE, changingSpeed);
+					stage.addEventListener(MouseEvent.MOUSE_UP, stopChanging);
+					
+					startAngle = (Math.atan2(stage.mouseY - posPonteiro.y, stage.mouseX - posPonteiro.x)) * 180 / Math.PI;
+					startOrientation = painel.velocimetro.ponteiro.rotation;
+				//}
+			}else {
+				var rotacao:Number = wrapRotation(Math.round(Math.atan2(stage.mouseY - posPonteiro.y , stage.mouseX - posPonteiro.x) * 180 / Math.PI) + 90);
 				
-				startAngle = (Math.atan2(stage.mouseY - posPonteiro.y, stage.mouseX - posPonteiro.x)) * 180 / Math.PI;
-				startOrientation = painel.velocimetro.ponteiro.rotation;
-			//}
+				for (var i:int = 0; i < angulos.length; i++) 
+				{
+					if (Math.abs(rotacao - angulos[i]) < 20 && velInVelocimeter != velocidades[i])
+					{
+						velInVelocimeter = velocidades[i];
+						
+						if (animacaoIniciada == false) initAnimation();
+						
+						if (ghost == null) {
+							ghost = new Ponteiro();
+							painel.velocimetro.addChild(ghost);
+							ghost.alpha = 0.5;
+							ghost.scaleY = 0.43;
+							painel.velocimetro.setChildIndex(ghost, painel.velocimetro.getChildIndex(painel.velocimetro.ponteiro) - 1);
+						}
+						ghost.visible = true;
+						ghost.rotation = angulos[i];
+						
+						if (reverse) changeSpeed(velocidades[i] * -1);
+						else changeSpeed(velocidades[i]);
+						
+						break;
+					}
+				}
+			}
 		}
 		
 		private var velInVelocimeter:Number = 0;
@@ -615,7 +657,7 @@ package
 			tempoDistancia.reset();
 			
 			painel.velocimetro.ponteiro.rotation = angulos[0];
-			painel.velocimetro.ponteiro.removeEventListener(MouseEvent.MOUSE_DOWN, initRotation);
+			painel.velocimetro./*ponteiro.*/removeEventListener(MouseEvent.MOUSE_DOWN, initRotation);
 		}
 		
 		private function calculaMedia():Number
@@ -632,7 +674,7 @@ package
 		
 		override public function reset(e:MouseEvent = null):void
 		{
-			painel.velocimetro.ponteiro.removeEventListener(MouseEvent.MOUSE_DOWN, initRotation);
+			painel.velocimetro./*ponteiro.*/removeEventListener(MouseEvent.MOUSE_DOWN, initRotation);
 			stage.removeEventListener(Event.ENTER_FRAME, updateCenario);
 			init();
 		}
