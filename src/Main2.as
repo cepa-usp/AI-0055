@@ -128,6 +128,7 @@ package
 			tempoDistancia.reset();
 			
 			reButton.gotoAndStop("FRENTE");
+			reButton.buttonMode = true;
 			painel.velocimetro.ponteiro.buttonMode = true;
 			if (ghost != null) ghost.visible = false;
 		}
