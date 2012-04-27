@@ -461,20 +461,22 @@ package
 		
 		private function engataTiraRe(e:MouseEvent):void 
 		{
-			painel.velocimetro.ponteiro.rotation = angulos[0];
-			//velocidade = 0;
-			velInVelocimeter = 0;
-			if (ghost == null) {
-				ghost = new Ponteiro();
-				painel.velocimetro.addChild(ghost);
-				ghost.alpha = 0.5;
-				ghost.scaleY = 0.43;
-				painel.velocimetro.setChildIndex(ghost, painel.velocimetro.getChildIndex(painel.velocimetro.ponteiro) - 1);
+			if(velocidade != 0){
+				painel.velocimetro.ponteiro.rotation = angulos[0];
+				//velocidade = 0;
+				velInVelocimeter = 0;
+				if (ghost == null) {
+					ghost = new Ponteiro();
+					painel.velocimetro.addChild(ghost);
+					ghost.alpha = 0.5;
+					ghost.scaleY = 0.43;
+					painel.velocimetro.setChildIndex(ghost, painel.velocimetro.getChildIndex(painel.velocimetro.ponteiro) - 1);
+				}
+				ghost.rotation = angulos[0];
+				ghost.visible = true;
+				changeSpeed(0);
+				painel.velocimetro.quilometragem.text = String(Math.round(distancia) * -1) + " m";
 			}
-			ghost.rotation = angulos[0];
-			ghost.visible = true;
-			changeSpeed(0);
-			painel.velocimetro.quilometragem.text = String(Math.round(distancia) * -1) + " m";
 			
 			if (reverse)
 			{
