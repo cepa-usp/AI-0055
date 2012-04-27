@@ -94,6 +94,8 @@ package
 			vLabel.backgroundColor = 0xFFFFFF;
 			tLabel.background = true;
 			tLabel.backgroundColor = 0xFFFFFF;
+			
+			iniciaTutorial();
 		}
 		
 		private function setIndex():void
@@ -746,7 +748,11 @@ package
 			painel.velocimetro.quilometragem.text = String(Math.round(distancia) * -1) + " m";
 			graph.draw();
 			
-			if (tempoDuracao.read() / 1000 >= 120) stopAnimation();
+			if (tempoDuracao.read() / 1000 >= 120) {
+				stopAnimation();
+				balao.setText("A animação pára após dois minutos. Pressione \"reiniciar\" para recomeçar.", CaixaTexto.RIGHT, CaixaTexto.LAST);
+				balao.setPosition(655, 434);
+			}
 		}
 		
 		private function atualizaPlacas(e:Event):void 
@@ -767,9 +773,59 @@ package
 			placaTeste.distancia.text = String(distanciaPlaca) + " m";
 		}
 		
-		override public function iniciaTutorial(e:MouseEvent = null):void
-		{
+		
+		//---------------- Tutorial -----------------------
+		
+		private var balao:CaixaTexto;
+		private var pointsTuto:Array;
+		private var tutoBaloonPos:Array;
+		private var tutoPos:int;
+		private var tutoSequence:Array = ["Clique sobre a velocidade desejada e o carro acelerará CONSTANTEMENTE até atingí-la.", 
+										  "Uma vez iniciada a viagem, a velocidade INSTANTÂNEA do carro é indicada em vermelho no gráfico.",
+										  "A velocidade MÉDIA, por sua vez, é indicada em azul.",
+										  "Arraste o gráfico para a direita ou para esquerda para ver outras regiões dele.",
+										  "Diferentemente do odômetro usual, este aqui indica a POSIÇÃO do carro com relação ao zero (placa inicial).",
+										  "Escolha a marcha a ré para fazer o carro desenvolver velocidade negativa."];
+		
+		override public function iniciaTutorial(e:MouseEvent = null):void{
+			tutoPos = 0;
+			if(balao == null){
+				balao = new CaixaTexto(true);
+				addChild(balao);
+				balao.visible = false;
+				
+				pointsTuto = 	[new Point(426, 429),
+								new Point(20 , 158),
+								new Point(235 , 158),
+								new Point(220 , 140),
+								new Point(482 , 441),
+								new Point(597 , 345)];
+								
+				tutoBaloonPos = [[CaixaTexto.RIGHT, CaixaTexto.CENTER],
+								[CaixaTexto.LEFT, CaixaTexto.CENTER],
+								[CaixaTexto.BOTTON, CaixaTexto.CENTER],
+								["", ""],
+								[CaixaTexto.BOTTON, CaixaTexto.LAST],
+								[CaixaTexto.BOTTON, CaixaTexto.LAST]];
+			}
+			balao.removeEventListener(Event.CLOSE, closeBalao);
 			
+			balao.setText(tutoSequence[tutoPos], tutoBaloonPos[tutoPos][0], tutoBaloonPos[tutoPos][1]);
+			balao.setPosition(pointsTuto[tutoPos].x, pointsTuto[tutoPos].y);
+			balao.addEventListener(Event.CLOSE, closeBalao);
+			balao.visible = true;
+		}
+		
+		private function closeBalao(e:Event):void 
+		{
+			tutoPos++;
+			if (tutoPos >= tutoSequence.length) {
+				balao.removeEventListener(Event.CLOSE, closeBalao);
+				balao.visible = false;
+			}else {
+				balao.setText(tutoSequence[tutoPos], tutoBaloonPos[tutoPos][0], tutoBaloonPos[tutoPos][1]);
+				balao.setPosition(pointsTuto[tutoPos].x, pointsTuto[tutoPos].y);
+			}
 		}
 	}
 
