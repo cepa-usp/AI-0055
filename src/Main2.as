@@ -114,10 +114,12 @@ package
 			vMedia = 0;
 			distancia = 0;
 			distanciaPlaca = 0;
+			velInVelocimeter = 0;
 			
 			novaVelocidade = 0;
 			
 			animacaoIniciada = false;
+			calculatingVel = false;
 			
 			reverse = false;
 			
@@ -130,7 +132,10 @@ package
 			reButton.gotoAndStop("FRENTE");
 			reButton.buttonMode = true;
 			painel.velocimetro.ponteiro.buttonMode = true;
-			if (ghost != null) ghost.visible = false;
+			
+			if (ghost != null) {
+				ghost.visible = false;
+			}
 		}
 		
 		private function initCarousel():void
@@ -494,7 +499,6 @@ package
 		private var ghost:MovieClip;
 		private function initRotation(e:MouseEvent):void 
 		{
-			trace(e.target);
 			if(e.target == painel.velocimetro.ponteiro){
 				if (ghost == null) {
 					ghost = new Ponteiro();
@@ -503,8 +507,10 @@ package
 					ghost.scaleY = 0.43;
 					painel.velocimetro.setChildIndex(ghost, painel.velocimetro.getChildIndex(painel.velocimetro.ponteiro) - 1);
 				}
+				
 				ghost.rotation = painel.velocimetro.ponteiro.rotation;
 				ghost.visible = true;
+				
 				//if (animacaoPausada == false)
 				//{
 					stage.addEventListener(MouseEvent.MOUSE_MOVE, changingSpeed);
@@ -677,6 +683,7 @@ package
 		{
 			painel.velocimetro./*ponteiro.*/removeEventListener(MouseEvent.MOUSE_DOWN, initRotation);
 			stage.removeEventListener(Event.ENTER_FRAME, updateCenario);
+			stage.removeEventListener(Event.ENTER_FRAME, calculaVel);
 			init();
 		}
 		
