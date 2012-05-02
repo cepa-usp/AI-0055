@@ -65,6 +65,7 @@ package
 		private var novaVelocidade:Number;
 		
 		private var mouseMotion:MouseMotionData = MouseMotionData.instance;
+		private var inicialTuto:Boolean = false;
 		
 		public function Main2() 
 		{
@@ -95,7 +96,10 @@ package
 			tLabel.background = true;
 			tLabel.backgroundColor = 0xFFFFFF;
 			
-			iniciaTutorial();
+			if (!inicialTuto) {
+				iniciaTutorial();
+				inicialTuto = true;
+			}
 		}
 		
 		private function setIndex():void
@@ -495,7 +499,7 @@ package
 				//velocidade = 0;
 				velInVelocimeter = 0;
 				if (ghost == null) {
-					ghost = new Ponteiro();
+					ghost = new Ponteirosombra();
 					painel.velocimetro.addChild(ghost);
 					ghost.alpha = 0.5;
 					ghost.scaleY = 0.43;
@@ -524,7 +528,7 @@ package
 		{
 			if(e.target == painel.velocimetro.ponteiro){
 				if (ghost == null) {
-					ghost = new Ponteiro();
+					ghost = new Ponteirosombra();
 					painel.velocimetro.addChild(ghost);
 					ghost.alpha = 0.5;
 					ghost.scaleY = 0.43;
@@ -554,7 +558,7 @@ package
 						if (animacaoIniciada == false) initAnimation();
 						
 						if (ghost == null) {
-							ghost = new Ponteiro();
+							ghost = new Ponteirosombra();
 							painel.velocimetro.addChild(ghost);
 							ghost.alpha = 0.5;
 							ghost.scaleY = 0.43;

@@ -1,16 +1,16 @@
 package 
 {
-	import flash.display.MovieClip;
+	import flash.display.SimpleButton;
 	/**
 	 * ...
 	 * @author Alexandre
 	 */
-	public class NextButton extends MovieClip
+	public class NextButton extends SimpleButton
 	{
 		
 		public function NextButton() 
 		{
-			this.buttonMode = true;
+			//this.buttonMode = true;
 		}
 		
 	}
