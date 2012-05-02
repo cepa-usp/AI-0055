@@ -84,23 +84,26 @@ package
 		private function clickHandler(e:MouseEvent):void 
 		{
 			//trace("clicou em: " + e.target);
-			if (e.target is NextButton) {
-				if (textArray.length >= 1) {
-					setText(textArray, sideForArrow, alignForArrow, currentWidth);
-				}
-			}else if (e.target != background && !(e.target is SimpleButton)) {
-				if (this.visible) {
+			if (hasNext) {
+				if (e.target is NextButton) {
 					this.visible = false;
-					//trace("evento disparado");
 					dispatchEvent(new Event(Event.CLOSE));
-					
 				}
-				else this.visible = false;
+			}else {
+				if (e.target != background && !(e.target is SimpleButton)) {
+					if (this.visible) {
+						this.visible = false;
+						dispatchEvent(new Event(Event.CLOSE));
+						
+					}
+					else this.visible = false;
+				}
 			}
 		}
 		
-		public function setText(text:*, side:String = null, align:String = null, width:Number = 200):void
+		public function setText(text:*, side:String = null, align:String = null, width:Number = 200, next:Boolean = false):void
 		{
+			this.hasNext = next;
 			this.textArray = null;
 			texto.text = "";
 			
@@ -109,7 +112,7 @@ package
 			
 			if (text is String) {
 				texto.text = text;
-				hasNext = false;
+				//hasNext = false;
 			}else if (text is Array) {
 				var arrayCopy:Array = [];
 				for (var i:int = 0; i < text.length; i++) 
@@ -143,6 +146,7 @@ package
 			posicionaNextButton();
 			setPosition(actualPosition.x, actualPosition.y);
 			this.visible = true;
+			this.parent.setChildIndex(this, this.parent.numChildren - 1);
 		}
 		
 		private function posicionaNextButton():void

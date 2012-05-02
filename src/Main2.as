@@ -750,7 +750,7 @@ package
 			
 			if (tempoDuracao.read() / 1000 >= 120) {
 				stopAnimation();
-				balao.setText("A animação pára após dois minutos. Pressione \"reiniciar\" para recomeçar.", CaixaTexto.RIGHT, CaixaTexto.LAST);
+				balao.setText("A animação pára após dois minutos. Pressione \"reiniciar\" para recomeçar.", CaixaTexto.RIGHT, CaixaTexto.LAST, 200, true);
 				balao.setPosition(655, 434);
 			}
 		}
@@ -794,14 +794,14 @@ package
 				addChild(balao);
 				balao.visible = false;
 				
-				pointsTuto = 	[new Point(426, 429),
+				pointsTuto = 	[new Point(485, 375),
 								new Point(20 , 158),
 								new Point(235 , 158),
 								new Point(220 , 140),
 								new Point(482 , 441),
 								new Point(597 , 345)];
 								
-				tutoBaloonPos = [[CaixaTexto.RIGHT, CaixaTexto.CENTER],
+				tutoBaloonPos = [[CaixaTexto.BOTTON, CaixaTexto.LAST],
 								[CaixaTexto.LEFT, CaixaTexto.CENTER],
 								[CaixaTexto.BOTTON, CaixaTexto.CENTER],
 								["", ""],

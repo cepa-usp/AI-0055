@@ -10,7 +10,7 @@ package
 		
 		public function NextButton() 
 		{
-			
+			this.buttonMode = true;
 		}
 		
 	}
